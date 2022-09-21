@@ -1,24 +1,23 @@
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+
 try {
-    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    var recognition = new SpeechRecognition();
-}
-catch (e) {
-    console.error(e);
+    if(!SpeechRecognition) throw ("Can't load SpeechRecognition");
+    if(!recognition) throw ("Can't load recognition")
+} catch (e) {
+    console.log(e);
     $('.no-browser-support').show();
     $('.app').hide();
 }
+const noteTextarea = $('#note-textarea');
+const instructions = $('#recording-instructions');
+const notesList = $('ul#notes');
 
-
-var noteTextarea = $('#note-textarea');
-var instructions = $('#recording-instructions');
-var notesList = $('ul#notes');
-
-var noteContent = '';
+let noteContent = '';
 
 // Get all notes from previous sessions and display them.
-var notes = getAllNotes();
+const notes = getAllNotes();
 renderNotes(notes);
-
 
 
 /*-----------------------------
@@ -34,18 +33,19 @@ recognition.continuous = true;
 recognition.onresult = function (event) {
 
     // event is a SpeechRecognitionEvent object.
+    console.log(event);
+
     // It holds all the lines we have captured so far.// We only need the current one.
-    var current = event.resultIndex;
+    const current = event.resultIndex;
 
     // Get a transcript of what was said.
-    var transcript = event.results[current][0].transcript;
-
+    const transcript = event.results[current][0].transcript;
 
 
     // Add the current transcript to the contents of our Note.
     // There is a weird bug on mobile, where everything is repeated twice.
     // There is no official solution so far so we have to handle an edge case.
-    var mobileRepeatBug = (current == 1 && transcript == event.results[0][0].transcript);
+    const mobileRepeatBug = (current === 1 && transcript === event.results[0][0].transcript);
 
     if (!mobileRepeatBug) {
         noteContent += transcript;
@@ -62,11 +62,10 @@ recognition.onspeechend = function () {
 }
 
 recognition.onerror = function (event) {
-    if (event.error == 'no-speech') {
+    if (event.error === 'no-speech') {
         instructions.text('No speech was detected. Try again.');
-    };
+    }
 }
-
 
 
 /*-----------------------------
@@ -96,8 +95,7 @@ $('#save-note-btn').on('click', function (e) {
 
     if (!noteContent.length) {
         instructions.text('Could not save empty note. Please add a message to your note.');
-    }
-    else {
+    } else {
         // Save note to localStorage.
         // The key is the dateTime with seconds, the value is the content of the note.
         saveNote(new Date().toLocaleString(), noteContent);
@@ -105,7 +103,8 @@ $('#save-note-btn').on('click', function (e) {
         // Reset variables and update UI.
         noteContent = '';
         renderNotes(getAllNotes());
-        noteTextarea.val(''); instructions.text('Note saved successfully.');
+        noteTextarea.val('');
+        instructions.text('Note saved successfully.');
     }
 
 })
@@ -113,22 +112,21 @@ $('#save-note-btn').on('click', function (e) {
 
 notesList.on('click', function (e) {
     e.preventDefault();
-    var target = $(e.target);
+    const target = $(e.target);
 
     // Listen to the selected note.
     if (target.hasClass('listen-note')) {
-        var content = target.closest('.note').find('.content').text();
+        const content = target.closest('.note').find('.content').text();
         readOutLoud(content);
     }
 
     // Delete note.
     if (target.hasClass('delete-note')) {
-        var dateTime = target.siblings('.date').text();
+        const dateTime = target.siblings('.date').text();
         deleteNote(dateTime);
         target.closest('.note').remove();
     }
 });
-
 
 
 /*-----------------------------
@@ -136,16 +134,16 @@ notesList.on('click', function (e) {
 ------------------------------*/
 
 function readOutLoud(message) {
-    var speech = new SpeechSynthesisUtterance();
+    const speech = new SpeechSynthesisUtterance();
 
     // Set the text and voice attributes.
     speech.text = message;
-    speech.volume = 1; speech.rate = 1;
+    speech.volume = 1;
+    speech.rate = 1;
     speech.pitch = 1;
 
     window.speechSynthesis.speak(speech);
 }
-
 
 
 /*-----------------------------
@@ -153,7 +151,7 @@ function readOutLoud(message) {
 ------------------------------*/
 
 function renderNotes(notes) {
-    var html = '';
+    let html = '';
     if (notes.length) {
         notes.forEach(function (note) {
             html += `<li class="note">
@@ -165,8 +163,7 @@ function renderNotes(notes) {
           <p class="content">${note.content}</p>
         </li>`;
         });
-    }
-    else {
+    } else {
         html = '<li><p class="content">You don\'t have any notes yet.</p></li>';
     }
     notesList.html(html);
@@ -179,14 +176,14 @@ function saveNote(dateTime, content) {
 
 
 function getAllNotes() {
-    var notes = [];
-    var key;
-    for (var i = 0; i < localStorage.length; i++) {
+    const notes = [];
+    let key;
+    for (let i = 0; i < localStorage.length; i++) {
         key = localStorage.key(i);
         console.log(i)
         console.log(key)
 
-        if (key.substring(0, 5) == 'note-') {
+        if (key.substring(0, 5) === 'note-') {
             notes.push({
                 date: key.replace('note-', ''),
                 content: localStorage.getItem(localStorage.key(i))
