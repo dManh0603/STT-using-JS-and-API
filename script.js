@@ -1,9 +1,9 @@
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = new SpeechRecognition();
-
 try {
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if(!SpeechRecognition) throw ("Can't load SpeechRecognition");
-    if(!recognition) throw ("Can't load recognition")
+
+    var recognition = new SpeechRecognition();
+    if(!recognition) throw ("Can't load recognition");
 } catch (e) {
     console.log(e);
     $('.no-browser-support').show();
@@ -178,6 +178,7 @@ function saveNote(dateTime, content) {
 function getAllNotes() {
     const notes = [];
     let key;
+
     for (let i = 0; i < localStorage.length; i++) {
         key = localStorage.key(i);
         console.log(i)
