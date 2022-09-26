@@ -34,7 +34,7 @@ If false, the recording will stop after a few seconds of silence.
 When true, the silence period is longer (about 15 seconds),
 allowing us to keep recording even when the user pauses.
 */
-recognition.continuous = false;
+recognition.continuous = true;
 // recognition.lang = 'vi';
 recognition.lang = $language;
 
@@ -42,13 +42,18 @@ recognition.lang = $language;
 recognition.onresult = function (event) {
 
     // event is a SpeechRecognitionEvent object.
-    console.log('on res:',event);
+    console.log('on res:', event);
 
     // It holds all the lines we have captured so far.// We only need the current one.
     const current = event.resultIndex;
 
     // Get a transcript of what was said.
     const transcript = event.results[current][0].transcript;
+
+    if (!(current === 1 && transcript === event.results[0][0].transcript)) {
+        noteContent += transcript;
+        noteTextarea.val(noteContent);
+    }
 
 };
 
@@ -134,11 +139,11 @@ notesList.on('click', function (e) {
 
 function readOutLoud(message) {
     const speech = new SpeechSynthesisUtterance();
-/*
-    The SpeechSynthesisUtterance interface of the Web Speech API represents a speech request.
-    It contains the content the speech service should read and information about how to read it
-    (e.g. language, pitch and volume.)
-*/
+    /*
+        The SpeechSynthesisUtterance interface of the Web Speech API represents a speech request.
+        It contains the content the speech service should read and information about how to read it
+        (e.g. language, pitch and volume.)
+    */
     console.log('SpeechSynthesisUtterance', speech);
     // Set the text and voice attributes.
     speech.text = message;
@@ -200,7 +205,7 @@ function getAllNotes() {
             });
         }
     }
-    console.log(notes)
+    // console.log('get All notes return:',notes)
     return notes;
 }
 
