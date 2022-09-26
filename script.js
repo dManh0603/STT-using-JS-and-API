@@ -25,18 +25,24 @@ renderNotes(notes);
       Voice Recognition
 ------------------------------*/
 
-// If false, the recording will stop after a few seconds of silence.
-// When true, the silence period is longer (about 15 seconds),
-// allowing us to keep recording even when the user pauses.
-console.log('Voice recognition:', recognition);
+/*
+The continuous property of the SpeechRecognition interface,
+controls whether continuous results are returned for each recognition,
+or only a single result.
+
+If false, the recording will stop after a few seconds of silence.
+When true, the silence period is longer (about 15 seconds),
+allowing us to keep recording even when the user pauses.
+*/
+recognition.continuous = false;
 // recognition.lang = 'vi';
-recognition.continuous = true;
 recognition.lang = $language;
+
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function (event) {
 
     // event is a SpeechRecognitionEvent object.
-    console.log(event);
+    console.log('on res:',event);
 
     // It holds all the lines we have captured so far.// We only need the current one.
     const current = event.resultIndex;
@@ -44,16 +50,6 @@ recognition.onresult = function (event) {
     // Get a transcript of what was said.
     const transcript = event.results[current][0].transcript;
 
-
-    // Add the current transcript to the contents of our Note.
-    // There is a weird bug on mobile, where everything is repeated twice.
-    // There is no official solution so far so we have to handle an edge case.
-    const mobileRepeatBug = (current === 1 && transcript === event.results[0][0].transcript);
-
-    if (!mobileRepeatBug) {
-        noteContent += transcript;
-        noteTextarea.val(noteContent);
-    }
 };
 
 recognition.onstart = function () {
