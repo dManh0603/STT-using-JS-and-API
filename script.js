@@ -1,9 +1,9 @@
 try {
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if(!SpeechRecognition) throw ("Can't load SpeechRecognition");
+    if (!SpeechRecognition) throw ("Can't load SpeechRecognition");
 
     var recognition = new SpeechRecognition();
-    if(!recognition) throw ("Can't load recognition");
+    if (!recognition) throw ("Can't load recognition");
 } catch (e) {
     console.log(e);
     $('.no-browser-support').show();
@@ -13,6 +13,7 @@ const noteTextarea = $('#note-textarea');
 const instructions = $('#recording-instructions');
 const notesList = $('ul#notes');
 
+let $language = 'en';
 let noteContent = '';
 
 // Get all notes from previous sessions and display them.
@@ -27,8 +28,10 @@ renderNotes(notes);
 // If false, the recording will stop after a few seconds of silence.
 // When true, the silence period is longer (about 15 seconds),
 // allowing us to keep recording even when the user pauses.
+console.log('Voice recognition:', recognition);
+// recognition.lang = 'vi';
 recognition.continuous = true;
-
+recognition.lang = $language;
 // This block is called every time the Speech APi captures a line.
 recognition.onresult = function (event) {
 
@@ -135,12 +138,17 @@ notesList.on('click', function (e) {
 
 function readOutLoud(message) {
     const speech = new SpeechSynthesisUtterance();
-
+/*
+    The SpeechSynthesisUtterance interface of the Web Speech API represents a speech request.
+    It contains the content the speech service should read and information about how to read it
+    (e.g. language, pitch and volume.)
+*/
+    console.log('SpeechSynthesisUtterance', speech);
     // Set the text and voice attributes.
     speech.text = message;
     speech.volume = 1;
     speech.rate = 1;
-    speech.pitch = 1;
+    speech.pitch = 0.1;
 
     window.speechSynthesis.speak(speech);
 }
@@ -149,6 +157,11 @@ function readOutLoud(message) {
 /*-----------------------------
       Helper Functions
 ------------------------------*/
+
+function changeLanguage() {
+    $language = $('#language-select').find('option:selected').val();
+    recognition.lang = $language;
+}
 
 function renderNotes(notes) {
     let html = '';
